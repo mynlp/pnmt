@@ -14,8 +14,8 @@ In this feature, BERT works an the encoder which makes it a BERT2Seq model.
 
 This package is not available in pip as most of the code is still experimental so you should install in from source.
 ```
-git clone https://github.com/PosoSAgapo/Pretrain-OpenNMT-py.git
-cd Pretrain-OpenNMT-py
+git clone https://github.com/mynlp/pnmt
+cd pnmt
 pip install -e .
 ```
 Note: if you encounter a MemoryError during installation, try to use pip with --no-cache-dir. For other installation details, please refer to OpenNMT.
