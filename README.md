@@ -12,7 +12,7 @@ In this feature, BERT works an the encoder which makes it a BERT2Seq model.
 
 ## Installation
 
-This package is not available in pip as most of the code is still experimental so you should install it from source, we will upload it to he PyPi after more features are added, but at this moment, you should install it from source.
+This package is not available in pip as most of the code is still experimental so you should install it from source, we will upload it to the PyPi after more features are added, but at this moment, you should install it from source.
 ```
 git clone https://github.com/mynlp/pnmt
 cd pnmt
