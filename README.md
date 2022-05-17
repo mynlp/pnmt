@@ -54,7 +54,7 @@ Then, it will generate the word embedding for both of your src and tgt vocabular
 
 Since the whole bert family is supported, you could also specify `bert-large-uncased` or `bert-base-cased` or any other bert version supported by transformers package. 
 
-The dafult embedding for each word in the embedding of `[CLS]` token which is the embedding representation of that word.
+The dafult embedding for each word is the embedding of `[CLS]` token which is the embedding representation of that word.
 
 Additionally, all the `onmt` script are replaced with `pnmt` is this repository.
 
