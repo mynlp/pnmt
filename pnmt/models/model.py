@@ -57,13 +57,57 @@ class NMTModel(BaseModel):
         self.encoder = encoder
         self.decoder = decoder
 
-    def forward(self, src, tgt, lengths, bptt=False, with_align=False):
+    def pre_train_model_init_state(self, src, memory_bank, encoder_final):
+        def _fix_enc_hidden(hidden):
+            # The encoder hidden is  (layers*directions) x batch x dim.
+            # We need to convert it to layers x batch x (directions*dim).
+            # No direction in pre train model, we return without modification
+            return hidden
+
+        if 'LSTM' in self.decoder.rnn._get_name():  # LSTM
+            self.decoder.state["hidden"] = tuple(_fix_enc_hidden(enc_hid)
+                                                 for enc_hid in (encoder_final.unsqueeze(0), encoder_final.unsqueeze(0)))
+            # self.decoder.state["hidden"] = tuple(_fix_enc_hidden(enc_hid)
+            #                                     for enc_hid in (encoder_final.unsqueeze(0), torch.zeros(encoder_final.unsqueeze(0).shape).cuda()))
+            if self.decoder.num_layers > 1:
+                # reminder_layer = self.decoder.num_layers - 1
+                # hidden_state = self.decoder.state["hidden"]
+                # concat_zero = torch.zeros(hidden_state[0].shape).repeat((reminder_layer, 1, 1)).cuda()
+                # new_hidden_state = torch.cat((hidden_state[0], concat_zero))
+                # self.decoder.state["hidden"] = (new_hidden_state.cuda(),  torch.zeros(new_hidden_state.shape).cuda())
+                self.decoder.state["hidden"] = (self.decoder.state["hidden"][0].repeat((self.decoder.num_layers, 1, 1)),
+                                                self.decoder.state["hidden"][1].repeat((self.decoder.num_layers, 1, 1)))
+        else:  # GRU
+            self.decoder.state["hidden"] = (_fix_enc_hidden(encoder_final.unsqueeze(0)),)
+            if self.decoder.num_layers > 1:
+                self.decoder.state["hidden"] = (self.decoder.state["hidden"][0].repeat((self.decoder.num_layers, 1, 1)),)
+
+            # Init the input feed.
+        batch_size = self.decoder.state["hidden"][0].size(1)
+        h_size = (batch_size, self.decoder.hidden_size)
+        self.decoder.state["input_feed"] = \
+            self.decoder.state["hidden"][0].data.new(*h_size).zero_().unsqueeze(0)
+        self.decoder.state["coverage"] = None
+
+    def forward(self, src, tgt, lengths, bptt=False, with_align=False, use_pre_trained_model_for_encoder=False):
+
+        if use_pre_trained_model_for_encoder==True:
+            outputs = self.encoder(input_ids=src['input_ids'],
+                                   attention_mask=src['attention_mask'],
+                                   token_type_ids=src['token_type_ids'],
+                                   output_hidden_states=True)
+            memory_bank = outputs['last_hidden_state']
+            memory_bank = memory_bank.transpose(0, 1)
+            enc_state = outputs['pooler_output']
+        else:
+            enc_state, memory_bank, lengths = self.encoder(src, lengths)
+
         dec_in = tgt[:-1]  # exclude last target from inputs
-
-        enc_state, memory_bank, lengths = self.encoder(src, lengths)
-
         if not bptt:
-            self.decoder.init_state(src, memory_bank, enc_state)
+            if use_pre_trained_model_for_encoder:
+                self.pre_train_model_init_state(src, memory_bank, enc_state)
+            else:
+                self.decoder.init_state(src, memory_bank, enc_state)
         dec_out, attns = self.decoder(dec_in, memory_bank,
                                       memory_lengths=lengths,
                                       with_align=with_align)

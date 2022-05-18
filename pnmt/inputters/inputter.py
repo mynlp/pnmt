@@ -161,7 +161,7 @@ def get_fields(
 
     src_field_kwargs = {
         "feats": src_feats,
-        "include_lengths": True,
+        "include_lengths": True if use_pre_trained_model==None else False, # we do not include lengths if using pre-trained model as this is meaningless in a pre-trained model
         "pad": task_spec_tokens["src"]["pad"],
         "bos": task_spec_tokens["src"]["bos"],
         "eos": task_spec_tokens["src"]["eos"],
@@ -205,6 +205,8 @@ def get_fields(
         fields["align"] = word_align
     if use_pre_trained_model:
         fields['tokenizer'] = AutoTokenizer.from_pretrained(pre_trained_model_type)
+    else:
+        fields['tokenizer'] = None
     return fields
 
 

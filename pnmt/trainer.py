@@ -70,7 +70,8 @@ def build_trainer(opt, device_id, model, fields, optim, model_saver=None):
                            model_dtype=opt.model_dtype,
                            earlystopper=earlystopper,
                            dropout=dropout,
-                           dropout_steps=dropout_steps)
+                           dropout_steps=dropout_steps,
+                           use_pre_trained_model_for_encoder=opt.use_pre_trained_model_for_encoder)
     return trainer
 
 
@@ -107,7 +108,7 @@ class Trainer(object):
                  n_gpu=1, gpu_rank=1, gpu_verbose_level=0,
                  report_manager=None, with_align=False, model_saver=None,
                  average_decay=0, average_every=1, model_dtype='fp32',
-                 earlystopper=None, dropout=[0.3], dropout_steps=[0]):
+                 earlystopper=None, dropout=[0.3], dropout_steps=[0], use_pre_trained_model_for_encoder=False):
         # Basic attributes.
         self.model = model
         self.train_loss = train_loss
@@ -132,6 +133,7 @@ class Trainer(object):
         self.earlystopper = earlystopper
         self.dropout = dropout
         self.dropout_steps = dropout_steps
+        self.use_pre_trained_model_for_encoder = use_pre_trained_model_for_encoder
 
         for i in range(len(self.accum_count_l)):
             assert self.accum_count_l[i] > 0
@@ -316,7 +318,8 @@ class Trainer(object):
                 with torch.cuda.amp.autocast(enabled=self.optim.amp):
                     # F-prop through the model.
                     outputs, attns = valid_model(src, tgt, src_lengths,
-                                                 with_align=self.with_align)
+                                                 with_align=self.with_align,
+                                                 use_pre_trained_model_for_encoder=self.use_pre_trained_model_for_encoder)
 
                     # Compute loss.
                     _, batch_stats = self.valid_loss(batch, outputs, attns)
@@ -365,7 +368,7 @@ class Trainer(object):
                 with torch.cuda.amp.autocast(enabled=self.optim.amp):
                     outputs, attns = self.model(
                         src, tgt, src_lengths, bptt=bptt,
-                        with_align=self.with_align)
+                        with_align=self.with_align, use_pre_trained_model_for_encoder=self.use_pre_trained_model_for_encoder)
                     bptt = True
 
                     # 3. Compute loss.

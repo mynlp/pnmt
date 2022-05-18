@@ -44,3 +44,5 @@ pnmt/modules/__pycache__/embeddings.cpython-37.pyc
 pnmt/modules/__pycache__/embeddings.cpython-37.pyc
 .idea/workspace.xml
 .idea/pnmt.iml
+=
+toy-ende/run/model_step_100.pt

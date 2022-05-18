@@ -256,13 +256,11 @@ class TextMultiField(RawField):
 
         # batch (list(list(list))): batch_size x len(self.fields) x seq_len
         batch_by_feat = list(zip(*batch))
-        if kwargs['use_pre_trained_model_for_encoder'] == True:
-            use_pre_trained_model_for_encoder = True
-            pre_train_tokenizer = kwargs['pre_train_tokenizer']
         base_data = self.base_field.process(batch_by_feat[0], device=device, **kwargs)
+        if kwargs['use_pre_trained_model_for_encoder'] == True:
+            return base_data
         if self.base_field.include_lengths:
             # lengths: batch_size
-            pdb.set_trace()
             base_data, lengths = base_data
 
         feats = [ff.process(batch_by_feat[i], device=device)
@@ -329,7 +327,8 @@ def text_fields(**kwargs):
     feat = Field(
         init_token=bos, eos_token=eos,
         pad_token=pad, tokenize=tokenize,
-        include_lengths=include_lengths, pre_train_tokenizer=pre_train_tokenizer)
+        include_lengths=include_lengths,
+        pre_train_tokenizer=pre_train_tokenizer)
     fields_.append((base_name, feat))
 
     # Feats fields
