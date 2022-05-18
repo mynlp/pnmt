@@ -90,9 +90,9 @@ In this feature, the BERT works as the encoder so the model becomes the BERT2Seq
 
 Different from a normal training configuration, you should specify a `learning_rate_for_pretrained` argument, this argument sets the learning rate for the pre-trained model which uses AdamW optimizer by default. The normal `learning_rate` will be used to as the learning rate for the RNN decoder.
 
-To notify, you should matain the rnn_size with the BERT embedding size which is `768` for bert-base-uncased model.
+To notify, you should keep the `rnn_size` same with the BERT embedding size which is `768` for bert-base-uncased model, future feature will support a linear transform from bert embedding size to any rnn size, but for now, you can only use the size same with BERT embedding size.
 
-`copy_attn` means the copy attention, which is not supported at this moment, but it is a to-do feature which is expected to be finished in several days.
+`copy_attn` means the copy attention, the feature can copy tokens from the source input to the generation, but it is not supported at this moment, but it is a to-do feature which is expected to be finished in several days.
 
 ### Using PNMT as ONMT
 Since we only add features to the OpenNMT and most of the code framework remains the same. Therefore,  all features of ONMT are supported.
