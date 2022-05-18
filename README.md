@@ -16,7 +16,7 @@ This package is not available in pip as most of the code is still experimental s
 ```
 git clone https://github.com/mynlp/pnmt
 cd pnmt
-pip install -e .p
+pip install -e .
 ```
 Note: if you encounter a MemoryError during installation, try to use pip with --no-cache-dir. For other installation details, please refer to OpenNMT.
 
