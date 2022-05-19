@@ -84,7 +84,7 @@ learning_rate_for_pretrained: 1e-5
 learning_rate: 1e-3
 word_vec_size: 768
 rnn_size: 768
-copy_attn: False
+copy_attn: Ture
 ```
 In this feature, the BERT works as the encoder so the model becomes the BERT2Seq where the decoder is LSTM by default, you could specify other possible models. 
 
@@ -92,7 +92,8 @@ Different from a normal training configuration, you should specify a `learning_r
 
 To notify, you should keep the `rnn_size` same with the BERT embedding size which is `768` for bert-base-uncased model, future feature will support a linear transform from bert embedding size to any rnn size, but for now, you can only use the size same with BERT embedding size.
 
-`copy_attn` means the copy attention, the feature can copy tokens from the source input to the generation, but it is not supported at this moment, but it is a to-do feature which is expected to be finished in several days.
+`copy_attn` means the copy attention, the feature can copy tokens from the source input to the generation. You could enable `copy_attn` by setting it to true, but to notify in advance, as the bert tokenizer uses subword tokenization, a whole word is tokenized into combination of subwords, the copy generator is only able to copy these subwords and is not able to copy a whole word, therefore if there are many complex words in you training data, you might need to use `copy_attn` carefully as it might copy subwords.
+
 
 ### Using PNMT as ONMT
 Since we only add features to the OpenNMT and most of the code framework remains the same. Therefore,  all features of ONMT are supported.
