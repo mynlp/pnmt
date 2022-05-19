@@ -46,7 +46,7 @@ class DatasetAdapter(object):
 
     valid_field_name = (
         'src', 'tgt', 'indices', 'src_map', 'src_ex_vocab', 'alignment',
-        'align')
+        'align', 'tokenizer')
 
     def __init__(self, fields, is_train):
         self.fields_dict = self._valid_fields(fields)
@@ -92,7 +92,8 @@ class DatasetAdapter(object):
             example = _dynamic_dict(
                 example,
                 fields['src'].base_field,
-                fields['tgt'].base_field)
+                fields['tgt'].base_field,
+                fields['tokenizer'])
         return example
 
     def _to_examples(self, bucket, is_train=False):

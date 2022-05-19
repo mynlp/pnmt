@@ -323,13 +323,23 @@ def _load_vocab(vocab_path, name, counters, min_freq=0):
 
 
 def _build_fv_from_multifield(multifield, counters, build_fv_kwargs,
-                              size_multiple=1):
+                              size_multiple=1, tokenizer=None):
     for name, field in multifield:
         _build_field_vocab(
             field,
             counters[name],
             size_multiple=size_multiple,
             **build_fv_kwargs[name])
+        #pdb.set_trace()
+        #field.UNK field.unk_index field.itos field.stoi
+        if name == 'src' and tokenizer != None:
+            field.vocab.stoi = tokenizer.vocab
+            field.UNK = tokenizer.unk_token
+            field.unk_index = tokenizer.unk_token_id
+            itos = []
+            for i in range(tokenizer.vocab_size):
+                itos.append(tokenizer.convert_ids_to_tokens(i))
+            field.vocab.itos = itos
         logger.info(" * %s vocab size: %d." % (name, len(field.vocab)))
 
 
@@ -352,7 +362,8 @@ def _build_fields_vocab(fields, counters, data_type, share_vocab,
         tgt_multifield,
         counters,
         build_fv_kwargs,
-        size_multiple=vocab_size_multiple if not share_vocab else 1)
+        size_multiple=vocab_size_multiple if not share_vocab else 1,
+        tokenizer=fields['tokenizer'])
 
     if data_type == 'text':
         src_multifield = fields["src"]
@@ -360,7 +371,8 @@ def _build_fields_vocab(fields, counters, data_type, share_vocab,
             src_multifield,
             counters,
             build_fv_kwargs,
-            size_multiple=vocab_size_multiple if not share_vocab else 1)
+            size_multiple=vocab_size_multiple if not share_vocab else 1,
+            tokenizer=fields['tokenizer'])
 
         if share_vocab:
             # `tgt_vocab_size` is ignored when sharing vocabularies

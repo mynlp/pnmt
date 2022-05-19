@@ -2,7 +2,7 @@
 
 from itertools import chain, starmap
 from collections import Counter
-
+import pdb
 import torch
 from torchtext.data import Dataset as TorchtextDataset
 from torchtext.data import Example
@@ -21,7 +21,7 @@ def _join_dicts(*args):
     return dict(chain(*[d.items() for d in args]))
 
 
-def _dynamic_dict(example, src_field, tgt_field):
+def _dynamic_dict(example, src_field, tgt_field, pre_train_tokenizer=None):
     """Create copy-vocab and numericalize with it.
 
     In-place adds ``"src_map"`` to ``example``. That is the copy-vocab
@@ -40,7 +40,33 @@ def _dynamic_dict(example, src_field, tgt_field):
     Returns:
         ``example``, changed as described.
     """
-
+    # pdb.set_trace()
+    if src_field.pre_train_tokenizer:
+        #pdb.set_trace()
+        pre_train_src = [pre_train_tokenizer.convert_ids_to_tokens(101)]+pre_train_tokenizer.tokenize(example["src"]["src"])+[pre_train_tokenizer.convert_ids_to_tokens(102)]
+        pre_train_unk = pre_train_tokenizer.unk_token
+        pre_train_pad = pre_train_tokenizer.pad_token
+        if 'bert' not in pre_train_tokenizer.name_or_path:
+            if pre_train_tokenizer.bos_token:
+                pre_train_src = [pre_train_tokenizer.bos_token]+pre_train_src
+            if pre_train_tokenizer.eos_token:
+                pre_train_src.append(pre_train_tokenizer.eos_token)
+        pre_train_src_ex_vocab = Vocab(Counter(pre_train_src), specials=[pre_train_unk, pre_train_pad])
+        pre_train_unk_idx = pre_train_src_ex_vocab.stoi[pre_train_unk]
+        pre_src_map = torch.LongTensor([pre_train_src_ex_vocab.stoi[w] for w in pre_train_src])
+        example["src_map"] = pre_src_map
+        example["src_ex_vocab"] = pre_train_src_ex_vocab
+        if "tgt" in example:
+            tgt = tgt_field.tokenize(example["tgt"]["tgt"])
+            mask = []
+            for w in tgt:
+                if w in pre_train_src_ex_vocab.stoi.keys():
+                    mask.append(pre_train_src_ex_vocab.stoi[w])
+                else:
+                    mask.append(pre_train_src_ex_vocab.stoi[pre_train_unk])
+            mask = torch.LongTensor([pre_train_unk_idx] + mask + [pre_train_unk_idx])
+            example["alignment"] = mask
+        return example
     src = src_field.tokenize(example["src"]["src"])
     # make a small vocab containing just the tokens in the source sequence
     unk = src_field.unk_token
@@ -126,9 +152,10 @@ class Dataset(TorchtextDataset):
             if can_copy:
                 src_field = fields['src']
                 tgt_field = fields['tgt']
+                pdb.set_trace()
                 # this assumes src_field and tgt_field are both text
                 ex_dict = _dynamic_dict(
-                    ex_dict, src_field.base_field, tgt_field.base_field)
+                    ex_dict, src_field.base_field, tgt_field.base_field, fields['tokenizer'])
                 self.src_vocabs.append(ex_dict["src_ex_vocab"])
             ex_fields = {k: [(k, v)] for k, v in fields.items() if
                          k in ex_dict}
