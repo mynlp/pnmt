@@ -6,7 +6,7 @@ Before you use this package, you should refer to [OpenNMT](https://github.com/Op
 However, as this is an independent extension for OpenNMT, so I may not be able to always keep updated with OpenNMT's new release, but I will try my best. If any new feature of OpenNMT does not work in here, you should use OpenNMT instead, but if you think it is a bug in the repository, please raise an issue.
 ## Completed Features:
 ### BERT as Embedding
-In this feature, BERT works as an embedding layer that provide word embedding given a token. Therefore the BERT is not the encoder at this feature, the RNN or any other model can be chosen to be the encoder.
+In this feature, BERT works as an embedding layer that provide word embedding given a token. Therefore the BERT is not the encoder at this feature, the RNN or any other model supported by OpenNMT can be chosen to be the encoder.
 ### BERT as Encoder
 In this feature, BERT works an the encoder which makes it a BERT2Seq model.
 
@@ -16,7 +16,7 @@ This package is not available in pip as most of the code is still experimental s
 ```
 git clone https://github.com/mynlp/pnmt
 cd pnmt
-pip install -e .p
+pip install -e .
 ```
 Note: if you encounter a MemoryError during installation, try to use pip with --no-cache-dir. For other installation details, please refer to OpenNMT.
 
@@ -90,17 +90,19 @@ In this feature, the BERT works as the encoder so the model becomes the BERT2Seq
 
 Different from a normal training configuration, you should specify a `learning_rate_for_pretrained` argument, this argument sets the learning rate for the pre-trained model which uses AdamW optimizer by default. The normal `learning_rate` will be used to as the learning rate for the RNN decoder.
 
-To notify, you should matain the rnn_size with the BERT embedding size which is `768` for bert-base-uncased model.
+To notify, you should keep the `rnn_size` same with the BERT embedding size which is `768` for bert-base-uncased model, future feature will support a linear transform from bert embedding size to any rnn size, but for now, you can only use the size same with BERT embedding size.
 
-`copy_attn` means the copy attention, which is not supported at this moment, but it is a to-do feature which is expected to be finished in several days.
+`copy_attn` means the copy attention, the feature can copy tokens from the source input to the generation, but it is not supported at this moment, but it is a to-do feature which is expected to be finished in several days.
 
 ### Using PNMT as ONMT
 Since we only add features to the OpenNMT and most of the code framework remains the same. Therefore,  all features of ONMT are supported.
 In order to use like `onmt`, you just need to  replace `onmt` with `pnmt` and use it like `onmt`, if it does not give an expected result, please raise an issue.  
 
 ## To do features:
-### BERT2Seq with Copy Mechanism
-This includes a modification in the Copy generator, modifying the code which produces extrac_src_vocab that is used in Copy generator.
+### BERT2Seq with Copy Mechanism (Done)
+We support BERT2Seq with Copy Mechanism Now!
+### Learning Rate Schedulere For BERT
+Will be completed in several days.
 ### Generation Pre-trained Model 
 This include pre-trained models like T5 or other possible generation pre-trained models.
 ### Parrallel Training and Inference
