@@ -99,8 +99,10 @@ Since we only add features to the OpenNMT and most of the code framework remains
 In order to use like `onmt`, you just need to  replace `onmt` with `pnmt` and use it like `onmt`, if it does not give an expected result, please raise an issue.  
 
 ## To do features:
-### BERT2Seq with Copy Mechanism
-This includes a modification in the Copy generator, modifying the code which produces extrac_src_vocab that is used in Copy generator.
+### BERT2Seq with Copy Mechanism (Done)
+We support BERT2Seq with Copy Mechanism Now!
+### Learning Rate Schedulere For BERT
+Will be completed in several days.
 ### Generation Pre-trained Model 
 This include pre-trained models like T5 or other possible generation pre-trained models.
 ### Parrallel Training and Inference
