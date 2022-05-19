@@ -102,8 +102,10 @@ In order to use like `onmt`, you just need to  replace `onmt` with `pnmt` and us
 ## To do features:
 ### BERT2Seq with Copy Mechanism (Done)
 We support BERT2Seq with Copy Mechanism Now!
-### Learning Rate Schedulere For BERT
-Will be completed in several days.
+### Traning From Checkpoint
+This includes training from a BERT or other checkpoint, as the original ONMT only load checkpoint for RNN model, so we have to modify this part of code if we want to make loading checkpoint supported in PNMT.
+### Learning Rate Scheduler
+Add BERT Learning Rate Scheduler for PNMT.
 ### Generation Pre-trained Model 
 This include pre-trained models like T5 or other possible generation pre-trained models.
 ### Parrallel Training and Inference
