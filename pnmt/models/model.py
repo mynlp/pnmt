@@ -63,7 +63,7 @@ class NMTModel(BaseModel):
         #pdb.set_trace()
         dec_in = tgt[:-1]  # exclude last target from inputs
         if not bptt:
-            self.decoder.init_state(src, memory_bank, enc_state, self.encoder.pre_train)
+            self.decoder.init_state(src, memory_bank, enc_state, self.encoder.pre_train)#the decoder intialization is different if the encoder is not in pre-trained mdoel
         dec_out, attns = self.decoder(dec_in, memory_bank,
                                       memory_lengths=lengths,
                                       with_align=with_align)

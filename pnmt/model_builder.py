@@ -149,11 +149,6 @@ def build_task_specific_model(model_opt, fields):
         ), "preprocess with -share_vocab if you use share_embeddings"
 
     if model_opt.model_task == ModelTask.SEQ2SEQ:
-        # if model_opt.use_pre_trained_model_for_encoder:
-        #     logger.info("You are initializing the %s as the encoder ", model_opt.encoder_type)
-        #     encoder = AutoModel.from_pretrained(model_opt.encoder_type)
-        #     src_emb = None
-        # else:
         encoder, src_emb = build_encoder_with_embeddings(model_opt, fields)
         decoder, _ = build_decoder_with_embeddings(
             model_opt,
