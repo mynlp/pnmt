@@ -5,6 +5,8 @@ Before you use this package, you should refer to [OpenNMT](https://github.com/Op
 
 However, as this is an independent extension for OpenNMT, so I may not be able to always keep updated with OpenNMT's new release, but I will try my best. If any new feature of OpenNMT does not work in here, you should use OpenNMT instead, but if you think it is a bug in the repository, please raise an issue.
 ## Completed Features:
+### Notice
+The repository in now in constantly quick developing, the code might reformat in a new way in any possible new commit before a official release is announced, so please understand that your code based on this reposiotry may not always work with your previous codes, but we will keep the compatability as much as possible.
 ### BERT as Embedding
 In this feature, BERT works as an embedding layer that provide word embedding given a token. Therefore the BERT is not the encoder at this feature, the RNN or any other model supported by OpenNMT can be chosen to be the encoder.
 ### BERT as Encoder
