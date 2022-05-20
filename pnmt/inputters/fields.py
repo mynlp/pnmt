@@ -18,7 +18,7 @@ def _get_dynamic_fields(opts):
                         with_align=with_align,
                         data_task=opts.data_task,
                         use_pre_trained_model=opts.use_pre_trained_model_for_encoder,
-                        pre_trained_model_type=opts.encoder_type)
+                        pre_trained_model_type=opts.pre_train_encoder_type)
 
     return fields
 

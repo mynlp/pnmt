@@ -1,0 +1,34 @@
+# toy_en_de.yaml
+
+## Where the samples will be written
+save_data: examples/data/example
+## Where the vocab(s) will be written
+src_vocab: examples/vocab/example.vocab.src
+tgt_vocab: examples/vocab/example.vocab.tgt
+# Prevent overwriting existing files in the folder
+overwrite: True
+
+# Corpus opts:
+data:
+    corpus_1:
+        path_src: examples/data/train_src.txt
+        path_tgt: examples/data/train_tgt.txt
+    valid:
+        path_src: examples/data/valid_src.txt
+        path_tgt: examples/data/valid_tgt.txt
+
+save_model: toy-ende/run/model
+save_checkpoint_steps: 10000
+train_steps: 100
+valid_steps: 5
+report_every: 5
+#encoder_type: pre_train_encoder
+#pre_train_encoder_type: bert-base-uncased
+#use_pre_trained_model_for_encoder: True
+embeddings_type: bert-base-uncased
+use_pre_trained_model_for_embedding: True
+#learning_rate_for_pretrained: 1e-5
+learning_rate: 1e-3
+word_vec_size: 768
+rnn_size: 768
+copy_attn: True

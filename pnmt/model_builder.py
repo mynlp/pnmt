@@ -19,7 +19,7 @@ from pnmt.utils.logging import logger
 from pnmt.utils.parse import ArgumentParser
 from pnmt.constants import ModelTask
 from transformers import BertTokenizer, BertModel, AutoTokenizer, AutoModel
-
+import pdb
 
 def build_embeddings(opt, text_field, for_encoder=True):
     """
@@ -64,6 +64,7 @@ def build_encoder(opt, embeddings):
         embeddings (Embeddings): vocab embeddings for this encoder.
     """
     enc_type = opt.encoder_type if opt.model_type == "text" else opt.model_type
+    #pdb.set_trace()
     return str2enc[enc_type].from_opt(opt, embeddings)
 
 
@@ -109,7 +110,7 @@ def load_test_model(opt, model_path=None):
 
 def build_src_emb(model_opt, fields):
     # Build embeddings.
-    if (model_opt.model_type == "text"):
+    if (model_opt.model_type == "text")&(model_opt.encoder_type != 'pre_train_encoder'): # pre_train_encoder does not need word embeddings thus no need for building and also causes false report
         src_field = fields["src"]
         src_emb = build_embeddings(model_opt, src_field)
     else:
@@ -148,12 +149,12 @@ def build_task_specific_model(model_opt, fields):
         ), "preprocess with -share_vocab if you use share_embeddings"
 
     if model_opt.model_task == ModelTask.SEQ2SEQ:
-        if model_opt.use_pre_trained_model_for_encoder:
-            logger.info("You are initializing the %s as the encoder ", model_opt.encoder_type)
-            encoder = AutoModel.from_pretrained(model_opt.encoder_type)
-            src_emb = None
-        else:
-            encoder, src_emb = build_encoder_with_embeddings(model_opt, fields)
+        # if model_opt.use_pre_trained_model_for_encoder:
+        #     logger.info("You are initializing the %s as the encoder ", model_opt.encoder_type)
+        #     encoder = AutoModel.from_pretrained(model_opt.encoder_type)
+        #     src_emb = None
+        # else:
+        encoder, src_emb = build_encoder_with_embeddings(model_opt, fields)
         decoder, _ = build_decoder_with_embeddings(
             model_opt,
             fields,

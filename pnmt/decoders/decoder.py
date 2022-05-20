@@ -1,3 +1,5 @@
+import pdb
+
 import torch
 import torch.nn as nn
 
@@ -157,22 +159,36 @@ class RNNDecoderBase(DecoderBase):
             opt.reuse_copy_attn,
             opt.copy_attn_type)
 
-    def init_state(self, src, memory_bank, encoder_final):
+    def init_state(self, src, memory_bank, encoder_final, pre_train=False):
         """Initialize decoder state with last state of the encoder."""
         def _fix_enc_hidden(hidden):
             # The encoder hidden is  (layers*directions) x batch x dim.
             # We need to convert it to layers x batch x (directions*dim).
+            # No direction in pre train model, we return without modification
             if self.bidirectional_encoder:
                 hidden = torch.cat([hidden[0:hidden.size(0):2],
                                     hidden[1:hidden.size(0):2]], 2)
             return hidden
+        if pre_train:
+            if 'LSTM' in self.rnn._get_name():
+                encoder_final = (encoder_final.unsqueeze(0), encoder_final.unsqueeze(0))
+            else:
+                encoder_final = encoder_final.unsqueeze(0)
 
-        if isinstance(encoder_final, tuple):  # LSTM
+        if isinstance(encoder_final, tuple):  # LSTM  ## rnn_type once set will be true for both encoder and decoder . this is the reason that in this place we only check in ouput of encoder
             self.state["hidden"] = tuple(_fix_enc_hidden(enc_hid)
                                          for enc_hid in encoder_final)
+            if pre_train:
+                if self.num_layers > 1:
+                    self.state["hidden"] = (
+                        self.state["hidden"][0].repeat((self.num_layers, 1, 1)),
+                        self.state["hidden"][1].repeat((self.num_layers, 1, 1)))
         else:  # GRU
             self.state["hidden"] = (_fix_enc_hidden(encoder_final), )
-
+            if pre_train:
+                if self.num_layers > 1:
+                    self.state["hidden"] = (
+                        self.state["hidden"][0].repeat((self.num_layers, 1, 1)),)
         # Init the input feed.
         batch_size = self.state["hidden"][0].size(1)
         h_size = (batch_size, self.hidden_size)

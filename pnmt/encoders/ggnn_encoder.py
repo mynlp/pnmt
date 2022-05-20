@@ -16,6 +16,7 @@ class GGNNAttrProxy(object):
     def __init__(self, module, prefix):
         self.module = module
         self.prefix = prefix
+        self.pre_train = False
 
     def __getitem__(self, i):
         return getattr(self.module, self.prefix + str(i))

@@ -275,10 +275,10 @@ def model_opts(parser):
               help='Data type of the model.')
     group.add('--encoder_type', '-encoder_type', type=str, default='rnn',
               choices=['rnn', 'brnn', 'ggnn', 'mean', 'transformer', 'cnn',
-                       'transformer_lm', 'bert-base-uncased', ],
+                       'transformer_lm', 'pre_train_encoder'],
               help="Type of encoder layer to use. Non-RNN layers "
                    "are experimental. Options are "
-                   "[rnn|brnn|ggnn|mean|transformer|cnn|transformer_lm|bert-base-uncased].")
+                   "[rnn|brnn|ggnn|mean|transformer|cnn|transformer_lm|pre_train_encoder].")
     group.add('--use_pre_trained_model_for_encoder', '-use_pre_trained_model_for_encoder',
               type=bool, default=False,
               help="Whether to use pre-trained model for encoder, enable this if you want to use pre-trained model.")
@@ -322,6 +322,8 @@ def model_opts(parser):
               choices=['LSTM', 'GRU', 'SRU'],
               action=CheckSRU,
               help="The gate type to use in the RNNs")
+    group.add('--pre_train_encoder_type', '-pre_train_encoder_type', type=str, default='bert-base-uncased',
+              help="Decide the bert model type for pre-trained model")
     # group.add('--residual', '-residual',   action="store_true",
     #                     help="Add residual connections between RNN layers.")
 

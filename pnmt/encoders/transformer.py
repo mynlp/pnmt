@@ -38,6 +38,7 @@ class TransformerEncoderLayer(nn.Module):
                                                     pos_ffn_activation_fn)
         self.layer_norm = nn.LayerNorm(d_model, eps=1e-6)
         self.dropout = nn.Dropout(dropout)
+        self.pre_train = False
 
     def forward(self, inputs, mask):
         """

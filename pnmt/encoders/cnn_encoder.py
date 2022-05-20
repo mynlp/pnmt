@@ -23,6 +23,7 @@ class CNNEncoder(EncoderBase):
         self.linear = nn.Linear(input_size, hidden_size)
         self.cnn = StackedCNN(num_layers, hidden_size,
                               cnn_kernel_width, dropout)
+        self.pre_train = False
 
     @classmethod
     def from_opt(cls, opt, embeddings):

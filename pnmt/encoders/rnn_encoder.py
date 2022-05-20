@@ -47,6 +47,7 @@ class RNNEncoder(EncoderBase):
             self._initialize_bridge(rnn_type,
                                     hidden_size,
                                     num_layers)
+        self.pre_train = False
 
     @classmethod
     def from_opt(cls, opt, embeddings):

@@ -16,6 +16,7 @@ class MeanEncoder(EncoderBase):
         super(MeanEncoder, self).__init__()
         self.num_layers = num_layers
         self.embeddings = embeddings
+        self.pre_train = False
 
     @classmethod
     def from_opt(cls, opt, embeddings):
