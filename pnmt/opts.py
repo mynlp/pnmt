@@ -621,13 +621,16 @@ def _add_train_general_opts(parser):
               help="If update_learning_rate, decay learning rate by "
                    "this much if steps have gone past "
                    "start_decay_steps")
+    group.add('--learning_rate_scheduler', '-learning_rate_scheduler',
+              type=str, default='none',
+              choices=['linear'],
+              help="This is the learning rate scheduler used for the model, but will overwrite the scheduler of ONMT")
     group.add('--start_decay_steps', '-start_decay_steps',
               type=int, default=50000,
               help="Start decaying every decay_steps after "
                    "start_decay_steps")
     group.add('--decay_steps', '-decay_steps', type=int, default=10000,
               help="Decay every decay_steps")
-
     group.add('--decay_method', '-decay_method', type=str, default="none",
               choices=['noam', 'noamwd', 'rsqrt', 'none'],
               help="Use a custom decay rate.")
