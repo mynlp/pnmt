@@ -96,7 +96,7 @@ To notify, you should keep the `rnn_size` same with the BERT embedding size whic
 
 `copy_attn` means the copy attention, the feature can copy tokens from the source input to the generation. You could enable `copy_attn` by setting it to true, but to notify in advance, as the bert tokenizer uses subword tokenization, a whole word is tokenized into combination of subwords, the copy generator is only able to copy these subwords and is not able to copy a whole word, therefore if there are many complex words in you training data, you might need to use `copy_attn` carefully as it might copy subwords.
 
-### Train BERT with Learning 
+### Train BERT2Seq with Transformer Learning Rate Scheduler
 ```
 save_data: examples/data/example
 src_vocab: examples/vocab/example.vocab.src
