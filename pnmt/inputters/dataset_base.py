@@ -152,7 +152,6 @@ class Dataset(TorchtextDataset):
             if can_copy:
                 src_field = fields['src']
                 tgt_field = fields['tgt']
-                pdb.set_trace()
                 # this assumes src_field and tgt_field are both text
                 ex_dict = _dynamic_dict(
                     ex_dict, src_field.base_field, tgt_field.base_field, fields['tokenizer'])

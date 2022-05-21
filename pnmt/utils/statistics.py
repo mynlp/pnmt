@@ -4,7 +4,7 @@ import math
 import sys
 
 from pnmt.utils.logging import logger
-
+import pdb
 
 class Statistics(object):
     """
@@ -112,17 +112,32 @@ class Statistics(object):
         step_fmt = "%2d" % step
         if num_steps > 0:
             step_fmt = "%s/%5d" % (step_fmt, num_steps)
-        logger.info(
-            ("Step %s; acc: %6.2f; ppl: %5.2f; xent: %4.2f; " +
-             "lr: %7.5f; %3.0f/%3.0f tok/s; %6.0f sec")
-            % (step_fmt,
-               self.accuracy(),
-               self.ppl(),
-               self.xent(),
-               learning_rate,
-               self.n_src_words / (t + 1e-5),
-               self.n_words / (t + 1e-5),
-               time.time() - start))
+        #pdb.set_trace()
+        if isinstance(learning_rate, list):
+            logger.info(
+                ("Step %s; acc: %6.2f; ppl: %5.2f; xent: %4.2f; " +
+                 "lr_pre_train: %7.5f; lr_rnn: %7.5f; %3.0f/%3.0f tok/s; %6.0f sec")
+                % (step_fmt,
+                   self.accuracy(),
+                   self.ppl(),
+                   self.xent(),
+                   learning_rate[0],
+                   learning_rate[-1],
+                   self.n_src_words / (t + 1e-5),
+                   self.n_words / (t + 1e-5),
+                   time.time() - start))
+        else:
+            logger.info(
+                ("Step %s; acc: %6.2f; ppl: %5.2f; xent: %4.2f; " +
+                 "lr: %7.5f; %3.0f/%3.0f tok/s; %6.0f sec")
+                % (step_fmt,
+                   self.accuracy(),
+                   self.ppl(),
+                   self.xent(),
+                   learning_rate,
+                   self.n_src_words / (t + 1e-5),
+                   self.n_words / (t + 1e-5),
+                   time.time() - start))
         sys.stdout.flush()
 
     def log_tensorboard(self, prefix, writer, learning_rate, patience, step):

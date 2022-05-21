@@ -11,6 +11,7 @@ import importlib
 from pnmt.utils.misc import fn_args
 from transformers.optimization import AdamW
 from transformers import get_scheduler, SchedulerType
+import pdb
 
 def build_torch_optimizer(model, opt):
     """Builds the PyTorch optimizer.
@@ -382,7 +383,8 @@ class Optimizer(object):
                 self._optimizer.clip_master_grads(self._max_grad_norm)
 
         for group in self._optimizer.param_groups:
-            group['lr'] = learning_rate
+            if self._scheduler.step() is not None:
+                group['lr'] = learning_rate
             if self._max_grad_norm > 0 and self._fp16 != "legacy":
                 clip_grad_norm_(group['params'], self._max_grad_norm)
 
@@ -394,6 +396,8 @@ class Optimizer(object):
             self._scaler.update()
         else:
             self._optimizer.step()
+            if self._scheduler is not None:
+                self._scheduler.step()
         self._decay_step += 1
         self._training_step += 1
 
