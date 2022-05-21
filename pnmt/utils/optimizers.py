@@ -221,7 +221,8 @@ class Optimizer(object):
                  optimizer,
                  learning_rate,
                  learning_rate_decay_fn=None,
-                 max_grad_norm=None):
+                 max_grad_norm=None,
+                 scheduler=None):
         """Initializes the controller.
 
        Args:
