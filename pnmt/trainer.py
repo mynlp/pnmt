@@ -16,7 +16,7 @@ import pnmt.utils
 from pnmt.utils.logging import logger
 
 
-def build_trainer(opt, device_id, model, fields, optim, model_saver=None):
+def build_trainer(opt, device_id, model, fields, optim, scheduler, model_saver=None):
     """
     Simplify `Trainer` creation based on user `opt`s*
 
@@ -58,7 +58,7 @@ def build_trainer(opt, device_id, model, fields, optim, model_saver=None):
         if opt.early_stopping > 0 else None
 
     report_manager = pnmt.utils.build_report_manager(opt, gpu_rank)
-    trainer = pnmt.Trainer(model, train_loss, valid_loss, optim, trunc_size,
+    trainer = pnmt.Trainer(model, train_loss, valid_loss, optim, scheduler, trunc_size,
                            shard_size, norm_method,
                            accum_count, accum_steps,
                            n_gpu, gpu_rank,
@@ -101,7 +101,7 @@ class Trainer(object):
                 Thus nothing will be saved if this parameter is None
     """
 
-    def __init__(self, model, train_loss, valid_loss, optim,
+    def __init__(self, model, train_loss, valid_loss, optim, scheduler,
                  trunc_size=0, shard_size=32,
                  norm_method="sents", accum_count=[1],
                  accum_steps=[0],
@@ -114,6 +114,7 @@ class Trainer(object):
         self.train_loss = train_loss
         self.valid_loss = valid_loss
         self.optim = optim
+        self.scheduler = scheduler
         self.trunc_size = trunc_size
         self.shard_size = shard_size
         self.norm_method = norm_method
@@ -402,6 +403,8 @@ class Trainer(object):
                         pnmt.utils.distributed.all_reduce_and_rescale_tensors(
                             grads, float(1))
                     self.optim.step()
+                    if self.scheduler != None:
+                        self.scheduler.step()
 
                 # If truncated, don't backprop fully.
                 # TO CHECK
@@ -420,6 +423,8 @@ class Trainer(object):
                 pnmt.utils.distributed.all_reduce_and_rescale_tensors(
                     grads, float(1))
             self.optim.step()
+            if self.scheduler != None:
+                self.scheduler.step()
 
     def _start_report_manager(self, start_time=None):
         """

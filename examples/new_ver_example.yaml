@@ -28,6 +28,7 @@ use_pre_trained_model_for_encoder: True
 #embeddings_type: bert-base-uncased
 #use_pre_trained_model_for_embedding: True
 learning_rate_for_pretrained: 1e-5
+learning_rate_scheduler: linear
 learning_rate: 1e-3
 word_vec_size: 768
 rnn_size: 768

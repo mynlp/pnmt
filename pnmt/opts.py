@@ -625,6 +625,9 @@ def _add_train_general_opts(parser):
               type=str, default='none',
               choices=['linear'],
               help="This is the learning rate scheduler used for the model, but will overwrite the scheduler of ONMT")
+    group.add('--warm_up_ratio', '-warm_up_ratio',
+              type=float, default=0.1,
+              help="Warm up ratio for learning rate scheduler")
     group.add('--start_decay_steps', '-start_decay_steps',
               type=int, default=50000,
               help="Start decaying every decay_steps after "

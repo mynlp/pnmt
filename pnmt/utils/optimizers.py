@@ -10,6 +10,7 @@ import types
 import importlib
 from pnmt.utils.misc import fn_args
 from transformers.optimization import AdamW
+from transformers import get_scheduler, SchedulerType
 
 def build_torch_optimizer(model, opt):
     """Builds the PyTorch optimizer.
@@ -37,25 +38,30 @@ def build_torch_optimizer(model, opt):
     betas = [opt.adam_beta1, opt.adam_beta2]
     if opt.optim == 'sgd' and not use_pre_trained_model:
         optimizer = optim.SGD(params, lr=opt.learning_rate)
+        scheduler = None
     elif opt.optim == 'adagrad' and not use_pre_trained_model:
         optimizer = optim.Adagrad(
             params,
             lr=opt.learning_rate,
             initial_accumulator_value=opt.adagrad_accumulator_init)
+        scheduler = None
     elif opt.optim == 'adadelta' and not use_pre_trained_model :
         optimizer = optim.Adadelta(params, lr=opt.learning_rate)
+        scheduler = None
     elif opt.optim == 'adafactor' and not use_pre_trained_model:
         optimizer = AdaFactor(
             params,
             non_constant_decay=True,
             enable_factorization=True,
             weight_decay=0)
+        scheduler = None
     elif opt.optim == 'adam' and not use_pre_trained_model:
         optimizer = optim.Adam(
             params,
             lr=opt.learning_rate,
             betas=betas,
             eps=1e-9)
+        scheduler = None
     elif opt.optim == 'sparseadam' and not use_pre_trained_model:
         dense = []
         sparse = []
@@ -78,6 +84,7 @@ def build_torch_optimizer(model, opt):
                  lr=opt.learning_rate,
                  betas=betas,
                  eps=1e-8)])
+        scheduler = None
     elif opt.optim == 'fusedadam' and not use_pre_trained_model:
         # we use here a FusedAdam() copy of an old Apex repo
         optimizer = FusedAdam(
@@ -93,6 +100,7 @@ def build_torch_optimizer(model, opt):
                 optimizer,
                 static_loss_scale=static_loss_scale,
                 dynamic_loss_scale=dynamic_loss_scale)
+        scheduler = None
     elif use_pre_trained_model:
         pre_train_param = list(model.named_parameters())
         no_decay = ['bias', 'LayerNorm.bias', 'LayerNorm.weight']
@@ -104,11 +112,18 @@ def build_torch_optimizer(model, opt):
             {'params': [p for n, p in pre_train_param if 'encoder' not in n], 'lr': opt.learning_rate}
         ]
         optimizer = AdamW(optimizer_grouped_parameters, lr=opt.learning_rate_for_pretrained)
-
+        if opt.learning_rate_scheduler != None:
+            scheduler=get_scheduler(opt.learning_rate_scheduler,
+                          optimizer,
+                          opt.train_steps,
+                          int(opt.train_steps*opt.warm_up_ratio)
+                          )
+        else:
+            scheduler = None
     else:
         raise ValueError('Invalid optimizer type: ' + opt.optim)
 
-    return optimizer
+    return optimizer, scheduler
 
 
 def make_learning_rate_decay_fn(opt):
@@ -221,8 +236,7 @@ class Optimizer(object):
                  optimizer,
                  learning_rate,
                  learning_rate_decay_fn=None,
-                 max_grad_norm=None,
-                 scheduler=None):
+                 max_grad_norm=None,):
         """Initializes the controller.
 
        Args:
@@ -232,7 +246,8 @@ class Optimizer(object):
            as argument and return a learning rate scaling factor.
          max_grad_norm: Clip gradients to this global norm.
         """
-        self._optimizer = optimizer
+        self._optimizer = optimizer[0]
+        self._scheduler = optimizer[1]
         self._learning_rate = learning_rate
         self._learning_rate_decay_fn = learning_rate_decay_fn
         self._max_grad_norm = max_grad_norm or 0

@@ -68,12 +68,11 @@ def main(opt, fields, transforms_cls, checkpoint, device_id,
     model.count_parameters(log=logger.info)
     # Build optimizer.
     optim = Optimizer.from_opt(model, opt, checkpoint=checkpoint)
-
+    optim, scheduler = optim, optim._scheduler
     # Build model saver
     model_saver = build_model_saver(model_opt, opt, model, fields, optim)
-
     trainer = build_trainer(
-        opt, device_id, model, fields, optim, model_saver=model_saver)
+        opt, device_id, model, fields, optim, scheduler, model_saver=model_saver)
 
     if batch_queue is None:
         _train_iter = _build_train_iter(opt, fields, transforms_cls)
