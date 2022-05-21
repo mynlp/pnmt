@@ -62,7 +62,6 @@ The dafult embedding for each word is the embedding of `[CLS]` token which is th
 
 ### BERT as Encoder
 ```
-
 save_data: examples/data/example
 src_vocab: examples/vocab/example.vocab.src
 tgt_vocab: examples/vocab/example.vocab.tgt
@@ -97,6 +96,37 @@ To notify, you should keep the `rnn_size` same with the BERT embedding size whic
 
 `copy_attn` means the copy attention, the feature can copy tokens from the source input to the generation. You could enable `copy_attn` by setting it to true, but to notify in advance, as the bert tokenizer uses subword tokenization, a whole word is tokenized into combination of subwords, the copy generator is only able to copy these subwords and is not able to copy a whole word, therefore if there are many complex words in you training data, you might need to use `copy_attn` carefully as it might copy subwords.
 
+### Train BERT with Learning 
+```
+save_data: examples/data/example
+src_vocab: examples/vocab/example.vocab.src
+tgt_vocab: examples/vocab/example.vocab.tgt
+overwrite: True
+# Corpus opts:
+data:
+    corpus_1:
+        path_src: examples/data/train_src.txt
+        path_tgt: examples/data/train_tgt.txt
+    valid:
+        path_src: examples/data/valid_src.txt
+        path_tgt: examples/data/valid_tgt.txt
+save_model: examples/run/model
+save_checkpoint_steps: 10000
+train_steps: 100
+valid_steps: 5
+report_every: 5
+encoder_type: pre_train_encoder
+pre_train_encoder_type: bert-base-uncased
+use_pre_trained_model_for_encoder: True
+learning_rate_for_pretrained: 1e-5
+learning_rate_scheduler: linear
+#warm_up_ratio: 0.1
+learning_rate: 1e-3
+word_vec_size: 768
+rnn_size: 768
+copy_attn: Ture
+```
+You could also train the BERT with a learning rate scheduler by specifying `linear` in the `learning_rate_scheduler`, the default `warm_up_ratio` is 0.1 even if you don't specify it, but you can change it to other possible parameters.
 
 ### Using PNMT as ONMT
 Since we only add features to the OpenNMT and most of the code framework remains the same. Therefore,  all features of ONMT are supported.

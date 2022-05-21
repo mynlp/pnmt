@@ -622,7 +622,7 @@ def _add_train_general_opts(parser):
                    "this much if steps have gone past "
                    "start_decay_steps")
     group.add('--learning_rate_scheduler', '-learning_rate_scheduler',
-              type=str, default='none',
+              type=str, default=None,
               choices=['linear'],
               help="This is the learning rate scheduler used for the model, but will overwrite the scheduler of ONMT")
     group.add('--warm_up_ratio', '-warm_up_ratio',

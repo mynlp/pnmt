@@ -383,7 +383,7 @@ class Optimizer(object):
                 self._optimizer.clip_master_grads(self._max_grad_norm)
 
         for group in self._optimizer.param_groups:
-            if self._scheduler.step() is not None:
+            if self._scheduler is not None:
                 group['lr'] = learning_rate
             if self._max_grad_norm > 0 and self._fp16 != "legacy":
                 clip_grad_norm_(group['params'], self._max_grad_norm)
