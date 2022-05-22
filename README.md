@@ -128,6 +128,8 @@ copy_attn: Ture
 ```
 You could also train the BERT with a learning rate scheduler by specifying `linear` in the `learning_rate_scheduler`, the default `warm_up_ratio` is 0.1 even if you don't specify it, but you can change it to other possible parameters.
 
+We will add other possible learning rate scheduler provided by transformers package in futurue, but we only support `linear` at this moment.
+
 ### Using PNMT as ONMT
 Since we only add features to the OpenNMT and most of the code framework remains the same. Therefore,  all features of ONMT are supported.
 In order to use like `onmt`, you just need to  replace `onmt` with `pnmt` and use it like `onmt`, if it does not give an expected result, please raise an issue.  
