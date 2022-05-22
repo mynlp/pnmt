@@ -289,6 +289,43 @@ class TextMultiField(RawField):
     def __getitem__(self, item):
         return self.fields[item]
 
+class Field(Field):
+    def __init__(self, sequential=True, use_vocab=True, init_token=None,
+                 eos_token=None, fix_length=None, dtype=torch.long,
+                 preprocessing=None, postprocessing=None, lower=False,
+                 tokenize=None, tokenizer_language='en', include_lengths=False,
+                 batch_first=False, pad_token="<pad>", unk_token="<unk>",
+                 pad_first=False, truncate_first=False, stop_words=None,
+                 is_target=False, pre_train_tokenizer=False):
+        super(Field, self).__init__(sequential=sequential, use_vocab=use_vocab, init_token=init_token,
+                 eos_token=eos_token, fix_length=fix_length, dtype=dtype,
+                 preprocessing=preprocessing, postprocessing=postprocessing, lower=lower,
+                 tokenize=tokenize, tokenizer_language=tokenizer_language, include_lengths=include_lengths,
+                 batch_first=batch_first, pad_token=pad_token, unk_token=unk_token,
+                 pad_first=pad_first, truncate_first=truncate_first, stop_words=stop_words,
+                 is_target=is_target)
+        self.pre_train_tokenizer = pre_train_tokenizer
+        try:
+            self.stop_words = set(stop_words) if stop_words is not None else None
+        except TypeError:
+            raise ValueError("Stop words must be convertible to a set")
+        self.is_target = is_target
+
+    def process(self, batch, device=None, use_pre_trained_model_for_encoder=False, pre_train_tokenizer=None):
+        if use_pre_trained_model_for_encoder:
+            assert not pre_train_tokenizer == None  # you cannot specify a pre_trainde model true while the tokenizer is None
+            str_list = [' '.join(x) for x in batch]
+            # pdb.set_trace()
+            padded = pre_train_tokenizer(str_list, padding=True, return_tensors='pt')
+            for key in padded.keys():
+                padded[key] = padded[key].to(device)
+            return padded
+        padded = self.pad(batch)
+        tensor = self.numericalize(padded, device=device)
+        return tensor
+
+
+
 
 def text_fields(**kwargs):
     """Create text fields.
@@ -329,6 +366,7 @@ def text_fields(**kwargs):
         pad_token=pad, tokenize=tokenize,
         include_lengths=include_lengths,
         pre_train_tokenizer=pre_train_tokenizer)
+    #pdb.set_trace()
     fields_.append((base_name, feat))
 
     # Feats fields

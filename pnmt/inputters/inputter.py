@@ -12,6 +12,7 @@ from torchtext.vocab import Vocab
 from pnmt.constants import DefaultTokens, ModelTask
 from pnmt.inputters.text_dataset import text_fields
 from pnmt.utils.logging import logger
+from pnmt.inputters.text_dataset import Field
 # backwards compatibility
 from pnmt.inputters.text_dataset import _feature_tokenize  # noqa: F401
 from transformers import AutoTokenizer
