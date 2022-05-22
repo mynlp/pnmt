@@ -1,7 +1,39 @@
 """Contains all methods relate to iteration."""
 import torchtext.data
-
+from torchtext.data.batch import Batch
 from pnmt.utils.logging import logger
+
+class Batch(Batch):
+    def __init__(self, data=None, dataset=None, device=None, pre_train_tokenizer=None):
+        if data is not None:
+            self.batch_size = len(data)
+            self.dataset = dataset
+            self.fields = dataset.fields.keys()  # copy field names
+            input_field = []
+            target_field = []
+            for k, v in dataset.fields.items():
+                if v is not None:
+                    if 'is_target' in dir(v):
+                        if v.is_target:
+                            target_field.append(k)
+                        else:
+                            input_field.append(k)
+            self.input_fields=input_field
+            self.target_fields=target_field
+            for (name, field) in dataset.fields.items():
+                if field is not None and name!='tokenizer':
+                    batch = [getattr(x, name) for x in data]
+                    if name == 'src':
+                        use_pre_trained_model_for_encoder = field.base_field.pre_train_tokenizer
+                    else:
+                        use_pre_trained_model_for_encoder = False
+                    setattr(self, name, field.process(batch,
+                                                     device=device,
+                                                     use_pre_trained_model_for_encoder=use_pre_trained_model_for_encoder,
+                                                     pre_train_tokenizer=pre_train_tokenizer)
+                            )
+
+
 
 
 def batch_iter(data, batch_size, batch_size_fn=None, batch_size_multiple=1):
@@ -127,7 +159,7 @@ class OrderedIterator(torchtext.data.Iterator):
                 if self.yield_raw_example:
                     yield minibatch[0]
                 else:
-                    yield torchtext.data.Batch(
+                    yield Batch(
                         minibatch,
                         self.dataset,
                         self.device,
