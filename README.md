@@ -137,6 +137,8 @@ In order to use like `onmt`, you just need to  replace `onmt` with `pnmt` and us
 ## To do features:
 ### BERT2Seq with Copy Mechanism (Done)
 We support BERT2Seq with Copy Mechanism Now!
+### Translator (Processing)
+Working on the support to make the translator avaialble, current model only supports the traning but the evaluation is not supported yet.
 ### Traning From Checkpoint
 This includes training from a BERT or other checkpoint, as the original ONMT only load checkpoint for RNN model, so we have to modify this part of code if we want to make loading checkpoint supported in PNMT.
 ### Learning Rate Scheduler
