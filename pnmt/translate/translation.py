@@ -4,7 +4,7 @@ import torch
 from pnmt.constants import DefaultTokens
 from pnmt.inputters.text_dataset import TextMultiField
 from pnmt.utils.alignment import build_align_pharaoh
-
+import pdb
 
 class TranslationBuilder(object):
     """
@@ -63,7 +63,7 @@ class TranslationBuilder(object):
                             tokens[i] = self.phrase_table_dict[src_tok]
         return tokens
 
-    def from_batch(self, translation_batch):
+    def from_batch(self, translation_batch, pre_train=False):
         batch = translation_batch["batch"]
         assert(len(translation_batch["gold_score"]) ==
                len(translation_batch["predictions"]))
@@ -84,7 +84,14 @@ class TranslationBuilder(object):
         # Sorting
         inds, perm = torch.sort(batch.indices)
         if self._has_text_src:
-            src = batch.src[0][:, :, 0].index_select(1, perm)
+            if not pre_train:
+                #pdb.set_trace()
+                #src = batch.src[0][:, :, 0].index_select(1, perm)
+                src = batch.src[:, :, 0].index_select(1, perm)
+                #pdb.set_trace()
+            else:
+                src = batch.src['input_ids'].unsqueeze(2)[:, :, 0].transpose(0, 1).index_select(1, perm)
+                #pdb.set_trace()
         else:
             src = None
         tgt = batch.tgt[:, :, 0].index_select(1, perm) \

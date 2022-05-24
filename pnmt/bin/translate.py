@@ -3,7 +3,7 @@
 from pnmt.utils.logging import init_logger
 from pnmt.utils.misc import split_corpus
 from pnmt.translate.translator import build_translator
-
+import pdb
 import pnmt.opts as opts
 from pnmt.utils.parse import ArgumentParser
 from collections import defaultdict
@@ -14,6 +14,7 @@ def translate(opt):
     logger = init_logger(opt.log_file)
 
     translator = build_translator(opt, logger=logger, report_score=True)
+    translator.fields['tokenizer']
     src_shards = split_corpus(opt.src, opt.shard_size)
     tgt_shards = split_corpus(opt.tgt, opt.shard_size)
     features_shards = []
@@ -35,7 +36,7 @@ def translate(opt):
             batch_size=opt.batch_size,
             batch_type=opt.batch_type,
             attn_debug=opt.attn_debug,
-            align_debug=opt.align_debug
+            align_debug=opt.align_debug,
             )
 
 

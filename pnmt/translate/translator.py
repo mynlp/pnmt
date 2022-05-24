@@ -19,7 +19,7 @@ from pnmt.utils.misc import tile, set_random_seed, report_matrix
 from pnmt.utils.alignment import extract_alignment, build_align_pharaoh
 from pnmt.modules.copy_generator import collapse_copy_scores
 from pnmt.constants import ModelTask
-
+import pdb
 
 def build_translator(opt, report_score=True, logger=None, out_file=None):
     if out_file is None:
@@ -31,9 +31,8 @@ def build_translator(opt, report_score=True, logger=None, out_file=None):
         else pnmt.model_builder.load_test_model
     )
     fields, model, model_opt = load_test_model(opt)
-
     scorer = pnmt.translate.GNMTGlobalScorer.from_opt(opt)
-
+    pre_train = model_opt.encoder_type == 'pre_train_encoder'
     if model_opt.model_task == ModelTask.LANGUAGE_MODEL:
         translator = GeneratorLM.from_opt(
             model,
@@ -45,6 +44,7 @@ def build_translator(opt, report_score=True, logger=None, out_file=None):
             report_align=opt.report_align,
             report_score=report_score,
             logger=logger,
+            pre_train=pre_train
         )
     else:
         translator = Translator.from_opt(
@@ -57,6 +57,7 @@ def build_translator(opt, report_score=True, logger=None, out_file=None):
             report_align=opt.report_align,
             report_score=report_score,
             logger=logger,
+            pre_train=pre_train
         )
     return translator
 
@@ -153,6 +154,7 @@ class Inference(object):
         report_score=True,
         logger=None,
         seed=-1,
+        pre_train = False
     ):
         self.model = model
         self.fields = fields
@@ -192,6 +194,7 @@ class Inference(object):
         }
         self.src_reader = src_reader
         self.tgt_reader = tgt_reader
+        self.pre_train = pre_train
         self.replace_unk = replace_unk
         if self.replace_unk and not self.model.decoder.attentional:
             raise ValueError("replace_unk requires an attentional decoder.")
@@ -244,6 +247,7 @@ class Inference(object):
         report_align=False,
         report_score=True,
         logger=None,
+        pre_train = False
     ):
         """Alternate constructor.
 
@@ -299,6 +303,7 @@ class Inference(object):
             report_score=report_score,
             logger=logger,
             seed=opt.seed,
+            pre_train = pre_train
         )
 
     def _log(self, msg):
@@ -380,6 +385,7 @@ class Inference(object):
         attn_debug=False,
         align_debug=False,
         phrase_table="",
+        fields=None,
     ):
         """Translate content of ``src`` and get gold scores from ``tgt``.
 
@@ -458,7 +464,8 @@ class Inference(object):
             sort=False,
             sort_within_batch=True,
             shuffle=False,
-        )
+            pre_train_tokenizer=self.fields['tokenizer'],
+        ) # mark this
 
         xlation_builder = pnmt.translate.TranslationBuilder(
             data,
@@ -481,9 +488,9 @@ class Inference(object):
 
         for batch in data_iter:
             batch_data = self.translate_batch(
-                batch, data.src_vocabs, attn_debug
+                batch, data.src_vocabs, attn_debug, pre_train=self.pre_train
             )
-            translations = xlation_builder.from_batch(batch_data)
+            translations = xlation_builder.from_batch(batch_data, pre_train=self.pre_train)
 
             for trans in translations:
                 all_scores += [trans.pred_scores[: self.n_best]]
@@ -790,7 +797,7 @@ class Translator(Inference):
         )
         return alignement
 
-    def translate_batch(self, batch, src_vocabs, attn_debug):
+    def translate_batch(self, batch, src_vocabs, attn_debug, pre_train=False):
         """Translate a batch of sentences."""
         with torch.no_grad():
             if self.sample_from_topk != 0 or self.sample_from_topp != 0:
@@ -834,17 +841,15 @@ class Translator(Inference):
                     ban_unk_token=self.ban_unk_token,
                 )
             return self._translate_batch_with_strategy(
-                batch, src_vocabs, decode_strategy
+                batch, src_vocabs, decode_strategy, pre_train
             )
 
     def _run_encoder(self, batch):
         src, src_lengths = (
             batch.src if isinstance(batch.src, tuple) else (batch.src, None)
         )
-
-        enc_states, memory_bank, src_lengths = self.model.encoder(
-            src, src_lengths
-        )
+        enc_states, memory_bank, src_lengths = self.model.encoder(src, src_lengths)
+        #pdb.set_trace()
         if src_lengths is None:
             assert not isinstance(
                 memory_bank, tuple
@@ -858,7 +863,7 @@ class Translator(Inference):
         return src, enc_states, memory_bank, src_lengths
 
     def _translate_batch_with_strategy(
-        self, batch, src_vocabs, decode_strategy
+        self, batch, src_vocabs, decode_strategy, pre_train
     ):
         """Translate a batch of sentences step by step using cache.
 
@@ -877,9 +882,10 @@ class Translator(Inference):
         batch_size = batch.batch_size
 
         # (1) Run the encoder on the src.
+        #pdb.set_trace()
         src, enc_states, memory_bank, src_lengths = self._run_encoder(batch)
-        self.model.decoder.init_state(src, memory_bank, enc_states)
-
+        self.model.decoder.init_state(src, memory_bank, enc_states, pre_train)
+        #pdb.set_trace()
         gold_score = self._gold_score(
             batch,
             memory_bank,

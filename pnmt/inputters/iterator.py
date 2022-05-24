@@ -2,6 +2,7 @@
 import torchtext.data
 from torchtext.data.batch import Batch
 from pnmt.utils.logging import logger
+import pdb
 
 class Batch(Batch):
     def __init__(self, data=None, dataset=None, device=None, pre_train_tokenizer=None):
@@ -20,6 +21,7 @@ class Batch(Batch):
                             input_field.append(k)
             self.input_fields=input_field
             self.target_fields=target_field
+            #pdb.set_trace()
             for (name, field) in dataset.fields.items():
                 if field is not None and name!='tokenizer':
                     batch = [getattr(x, name) for x in data]

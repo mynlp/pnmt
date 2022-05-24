@@ -46,3 +46,7 @@ pnmt/modules/__pycache__/embeddings.cpython-37.pyc
 .idea/pnmt.iml
 =
 toy-ende/run/model_step_100.pt
+toy-ende/run/bert_model_step_30000.pt
+toy-ende/pred.txt
+toy-ende/run/lstm_model_step_30000.pt
+toy-ende/run/model_step_10000.pt
