@@ -112,7 +112,7 @@ def build_torch_optimizer(model, opt):
              'lr': opt.learning_rate_for_pretrained, 'weight_decay': 0.01},
             {'params': [p for n, p in pre_train_param if 'encoder' not in n], 'lr': opt.learning_rate}
         ]
-        optimizer = AdamW(optimizer_grouped_parameters, lr=opt.learning_rate_for_pretrained)
+        optimizer = AdamW(optimizer_grouped_parameters, lr=opt.learning_rate)
         if opt.learning_rate_scheduler != None:
             scheduler=get_scheduler(opt.learning_rate_scheduler,
                           optimizer,
