@@ -156,3 +156,4 @@ This project will be organized and re-publish as another package since OpenNMT d
 
 Feel free to send a PR or feature request, I will reply at my best.
 
+I am busy with other stuffs so the repository might update slow from 2022.05.26
