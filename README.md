@@ -149,7 +149,8 @@ This include pre-trained models like T5 or other possible generation pre-trained
 This feature is mainly to be research friendlym, the target is to split the test and training and then automatically find the best checkpoint.
 ## Known Issue
 There are several issues in the repository.
-### Possible Bugs in Translation
+### Possible Bugs in Training 
+The model's performance limit reaches 90% and stops training, stilling figuring the problem but time is limited for now.
 
 ## Others
 This project will be organized and re-publish as another package since OpenNMT does not consider to include pre-trained models.
