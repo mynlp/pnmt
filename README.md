@@ -156,5 +156,3 @@ The model's performance limit reaches 90% and stops training, stilling figuring 
 This project will be organized and re-publish as another package since OpenNMT does not consider to include pre-trained models.
 
 Feel free to send a PR or feature request, I will reply at my best.
-
-I am currently busy with UTokyo entrance exam, so the repository might update slow from 2022.05.26. 
